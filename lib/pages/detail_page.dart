@@ -1,4 +1,4 @@
- 
+
 import 'package:bwa_cozy/models/space.dart';
 import 'package:bwa_cozy/widgets/facility_item.dart';
 import 'package:bwa_cozy/widgets/rating_item.dart';
@@ -7,11 +7,17 @@ import '../theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'error_page.dart';
 
-class DetailPage extends StatelessWidget {
-
+class DetailPage extends StatefulWidget {
   final Space space;
 
   DetailPage(this.space);
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  bool isClicked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,40 @@ class DetailPage extends StatelessWidget {
       }
     }
 
+    Future<void> showConfirmation() async {
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Konfirmasi'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: const <Widget>[
+                    Text('Apakah Kamu Ingin Menghubungi Pemilik Kost?'),
+                    // Text('Would you like to approve of this message?'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Batal'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('Hubungi'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    launchUrl('tel:${widget.space.phone}');
+                  },
+                ),
+              ],
+            );
+          },
+        );
+    }
+
     return Scaffold(
       backgroundColor: whiteColor,
       body: SafeArea(
@@ -36,7 +76,7 @@ class DetailPage extends StatelessWidget {
         child: Stack(
           children: [
             Image.network(
-              space.imageUrl??'',
+              widget.space.imageUrl ?? '',
               width: MediaQuery.of(context).size.width,
               height: 350,
               fit: BoxFit.cover,
@@ -72,7 +112,7 @@ class DetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  space.name??'',
+                                  widget.space.name ?? '',
                                   style: blackTextStyle.copyWith(
                                     fontSize: 22,
                                   ),
@@ -82,7 +122,7 @@ class DetailPage extends StatelessWidget {
                                 ),
                                 Text.rich(
                                   TextSpan(
-                                    text: '\$${space.price}',
+                                    text: '\$${widget.space.price}',
                                     style: purpleTextStyle.copyWith(
                                       fontSize: 16,
                                     ),
@@ -99,18 +139,17 @@ class DetailPage extends StatelessWidget {
                               ],
                             ),
                             Row(
-                              children: [1, 2, 3, 4, 5].map((index){
-                                return Container(
-                                  margin: EdgeInsets.only(
-                                    left: 2,
-                                  ),
-                                  child: RatingItem(
-                                    index: index,
-                                    rating: space.rating,
-                                  ),
-                                );
-                              }).toList()
-                            ),
+                                children: [1, 2, 3, 4, 5].map((index) {
+                              return Container(
+                                margin: EdgeInsets.only(
+                                  left: 2,
+                                ),
+                                child: RatingItem(
+                                  index: index,
+                                  rating: widget.space.rating,
+                                ),
+                              );
+                            }).toList()),
                           ],
                         ),
                       ),
@@ -140,17 +179,17 @@ class DetailPage extends StatelessWidget {
                             FacilityItem(
                               name: ' kitchens',
                               imageUrl: 'assets/images/icon_kitchen.png',
-                              total: space.numberOfKitchens,
+                              total: widget.space.numberOfKitchens,
                             ),
                             FacilityItem(
                               name: ' badrooms',
                               imageUrl: 'assets/images/icon_bedroom.png',
-                              total: space.numberOfBedrooms,
+                              total: widget.space.numberOfBedrooms,
                             ),
                             FacilityItem(
                               name: ' Big Lemari',
                               imageUrl: 'assets/images/icon_cupboard.png',
-                              total: space.numberOfCupboards,
+                              total: widget.space.numberOfCupboards,
                             ),
                           ],
                         ),
@@ -175,23 +214,22 @@ class DetailPage extends StatelessWidget {
                         height: 88,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          children: 
-                            space.photos!.map((item){
-                              return Container(
-                                margin: EdgeInsets.only(
-                                  left: 24,
+                          children: widget.space.photos!.map((item) {
+                            return Container(
+                              margin: EdgeInsets.only(
+                                left: 24,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  item,
+                                  width: 110,
+                                  height: 88,
+                                  fit: BoxFit.cover,
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    item,
-                                     width: 110,
-                                     height: 88,
-                                     fit: BoxFit.cover,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                              ),
+                            );
+                          }).toList(),
                           // [
                           //   SizedBox(
                           //     width: edge,
@@ -247,7 +285,7 @@ class DetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${space.address}\n${space.city}',
+                              '${widget.space.address}\n${widget.space.city}',
                               style: greyTextStyle,
                             ),
                             InkWell(
@@ -256,7 +294,7 @@ class DetailPage extends StatelessWidget {
                                 // launchUrl(
                                 //   'https://www.google.com/maps/place/Jl.+Malioboro,+Sosromenduran,+Gedong+Tengen,+Kota+Yogyakarta,+Daerah+Istimewa+Yogyakarta/@-7.7926306,110.3636856,17z/data=!3m1!4b1!4m5!3m4!1s0x2e7a5825fa6106c5:0x3ea4c521a5ed1133!8m2!3d-7.7926359!4d110.3658743',
                                 // );
-                                launchUrl(space.mapUrl??'');
+                                launchUrl(widget.space.mapUrl ?? '');
                               },
                               child: Image.asset(
                                 'assets/images/btn_map.png',
@@ -277,7 +315,7 @@ class DetailPage extends StatelessWidget {
                         width: MediaQuery.of(context).size.width - (2 * edge),
                         child: RaisedButton(
                           onPressed: () {
-                            launchUrl('tel:${space.phone}');
+                           showConfirmation();
                           },
                           color: purpleColor,
                           shape: RoundedRectangleBorder(
@@ -313,9 +351,18 @@ class DetailPage extends StatelessWidget {
                       width: 40,
                     ),
                   ),
-                  Image.asset(
-                    'assets/images/btn_wishlist.png',
-                    width: 40,
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isClicked = !isClicked;
+                      });
+                    },
+                    child: Image.asset(
+                      isClicked
+                          ? 'assets/images/btn_wishlist_filled.png'
+                          : 'assets/images/btn_wishlist.png',
+                      width: 40,
+                    ),
                   ),
                 ],
               ),
